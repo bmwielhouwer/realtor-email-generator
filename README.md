@@ -36,10 +36,25 @@ Open <http://localhost:3000>.
 
 1. Push this repo to GitHub.
 2. In Vercel, click **New Project** and import the repository.
-3. Under **Environment Variables**, add `ANTHROPIC_API_KEY` with your
-   Anthropic API key.
+3. Under **Environment Variables**, add:
+   - `ANTHROPIC_API_KEY` — your Anthropic API key.
+   - `ACCESS_CODES` — comma-separated list of subscriber codes
+     (e.g. `CLV-MARIA-9X4K,CLV-BRIAN-2P7W`). Leave empty to allow
+     unrestricted access (local dev only).
 4. Deploy. Vercel auto-detects the Next.js framework; no extra config
    is needed.
+
+## Access control & rate limiting
+
+- **Access codes** — every `POST /api/generate` request must include
+  an `accessCode` matching one of the codes in the `ACCESS_CODES` env
+  var. Mint a new code per Squarespace subscriber, email it to them,
+  and add it to the env var (Vercel auto-redeploys on change). To
+  revoke a customer's access, remove their code from the list.
+- **Rate limit** — the server caps each IP at 10 generations per
+  hour. This is a soft, in-memory limit (resets on cold start) — good
+  enough as a safety net while traffic is low. Swap for Upstash
+  Ratelimit when you outgrow it.
 
 ## Project structure
 

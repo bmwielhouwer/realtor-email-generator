@@ -13,7 +13,7 @@ function safeEqual(a: string, b: string): boolean {
 }
 
 export async function POST(request: Request) {
-  const adminPassword = process.env.ADMIN_PASSWORD;
+  const adminPassword = (process.env.ADMIN_PASSWORD ?? "").trim();
   if (!adminPassword) {
     return NextResponse.json(
       { error: "Server is missing ADMIN_PASSWORD." },

@@ -62,11 +62,23 @@ export default function EmailGenerator() {
   };
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-10">
       <form
         onSubmit={handleSubmit}
-        className="rounded-2xl border border-navy-100 bg-white p-6 shadow-xl shadow-navy-900/10 sm:p-8"
+        className="rounded-2xl border border-navy/10 bg-white p-6 shadow-[0_25px_60px_-15px_rgba(27,36,71,0.25)] sm:p-10"
       >
+        <div className="mb-8 border-b border-silver/20 pb-6">
+          <div className="text-[11px] font-semibold uppercase tracking-[0.2em] text-gold">
+            Step 1
+          </div>
+          <h2 className="mt-2 font-serif text-2xl font-bold text-navy sm:text-3xl">
+            Tell us about your business
+          </h2>
+          <p className="mt-2 text-sm text-silver-dark">
+            We&apos;ll craft five tailored cold emails ready to send.
+          </p>
+        </div>
+
         <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
           <div>
             <label htmlFor="name" className="field-label">
@@ -146,9 +158,9 @@ export default function EmailGenerator() {
           </div>
         </div>
 
-        <div className="mt-6 flex items-center justify-between gap-4">
-          <p className="text-xs text-navy-600">
-            We&apos;ll generate 5 tailored cold emails you can copy and send.
+        <div className="mt-8 flex flex-col-reverse items-stretch justify-between gap-4 border-t border-silver/20 pt-6 sm:flex-row sm:items-center">
+          <p className="text-xs text-silver-dark">
+            5 ready-to-send emails &middot; Generated in seconds
           </p>
           <button type="submit" disabled={loading} className="btn-primary">
             {loading ? (
@@ -157,7 +169,7 @@ export default function EmailGenerator() {
                 Generating...
               </>
             ) : (
-              <>Generate emails</>
+              <>Generate Emails</>
             )}
           </button>
         </div>
@@ -165,7 +177,7 @@ export default function EmailGenerator() {
         {error && (
           <div
             role="alert"
-            className="mt-5 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800"
+            className="mt-6 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800"
           >
             {error}
           </div>
@@ -173,8 +185,20 @@ export default function EmailGenerator() {
       </form>
 
       {emails.length > 0 && (
-        <div className="space-y-4">
-          <h2 className="text-xl font-bold text-navy-900">Your emails</h2>
+        <div className="space-y-5">
+          <div className="flex items-baseline justify-between">
+            <div>
+              <div className="text-[11px] font-semibold uppercase tracking-[0.2em] text-gold">
+                Step 2
+              </div>
+              <h2 className="mt-1 font-serif text-2xl font-bold text-navy sm:text-3xl">
+                Your Emails
+              </h2>
+            </div>
+            <span className="text-[11px] font-semibold uppercase tracking-[0.2em] text-silver-dark">
+              {emails.length} generated
+            </span>
+          </div>
           <div className="grid gap-4">
             {emails.map((email, idx) => (
               <EmailCard key={idx} index={idx + 1} email={email} />
@@ -201,13 +225,14 @@ function EmailCard({ index, email }: { index: number; email: GeneratedEmail }) {
   };
 
   return (
-    <article className="rounded-2xl border border-navy-100 bg-white p-6 shadow-sm transition hover:shadow-md">
+    <article className="relative overflow-hidden rounded-xl border border-silver/20 bg-white pl-6 pr-6 py-6 shadow-sm transition-all duration-200 hover:shadow-lg sm:pl-8 sm:pr-8 sm:py-7">
+      <div className="absolute left-0 top-0 h-full w-1 bg-gold" aria-hidden />
       <div className="mb-4 flex items-start justify-between gap-4">
         <div className="min-w-0 flex-1">
-          <div className="text-xs font-semibold uppercase tracking-widest text-navy-500">
+          <div className="text-[11px] font-semibold uppercase tracking-[0.2em] text-gold">
             Email {index}
           </div>
-          <h3 className="mt-1 text-base font-bold text-navy-900">
+          <h3 className="mt-1.5 font-serif text-lg font-bold text-navy sm:text-xl">
             {email.subject}
           </h3>
         </div>
@@ -223,7 +248,7 @@ function EmailCard({ index, email }: { index: number; email: GeneratedEmail }) {
           )}
         </button>
       </div>
-      <p className="whitespace-pre-wrap text-sm leading-relaxed text-navy-800">
+      <p className="whitespace-pre-wrap text-sm leading-relaxed text-navy/85">
         {email.body}
       </p>
     </article>

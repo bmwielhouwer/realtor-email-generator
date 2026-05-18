@@ -1,5 +1,7 @@
 import EmailGenerator from "./EmailGenerator";
 
+const STRIPE_SUBSCRIBE_URL = "https://buy.stripe.com/dRm00c7mEbUOg7Ie2U9AA00";
+
 export default function Home() {
   return (
     <main className="min-h-screen bg-white">
@@ -12,9 +14,19 @@ export default function Home() {
               className="h-10 w-auto"
             />
           </a>
-          <span className="hidden text-[11px] font-semibold uppercase tracking-[0.25em] text-silver sm:block">
-            Realtor Email Generator
-          </span>
+          <div className="flex items-center gap-5">
+            <span className="hidden text-[11px] font-semibold uppercase tracking-[0.25em] text-silver md:block">
+              Realtor Email Generator
+            </span>
+            <a
+              href={STRIPE_SUBSCRIBE_URL}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center justify-center rounded-lg bg-gold px-4 py-2 text-xs font-semibold uppercase tracking-wider text-white shadow-sm transition-all duration-200 hover:bg-gold-600 focus:outline-none focus:ring-2 focus:ring-gold/40 focus:ring-offset-2 focus:ring-offset-navy"
+            >
+              Subscribe
+            </a>
+          </div>
         </div>
       </header>
 
@@ -32,6 +44,23 @@ export default function Home() {
             Built exclusively for real estate professionals
           </p>
           <div className="mx-auto mt-10 h-px w-20 bg-gold" />
+          <div className="mt-10 flex flex-col items-center gap-3">
+            <a
+              href={STRIPE_SUBSCRIBE_URL}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="btn-primary"
+            >
+              Try Pro — $50 First Month
+            </a>
+            <p className="text-xs text-silver">
+              $200/mo after. Use code{" "}
+              <span className="font-mono font-semibold tracking-wider text-gold">
+                TRY25
+              </span>{" "}
+              at checkout. Cancel anytime.
+            </p>
+          </div>
         </div>
       </section>
 

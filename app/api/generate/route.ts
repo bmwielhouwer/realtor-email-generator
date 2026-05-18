@@ -12,6 +12,7 @@ type RequestBody = {
   audience?: Audience;
   uniqueSellingPoint?: string;
   callToAction?: string;
+  accessCode?: string;
 };
 
 type GeneratedEmail = {
@@ -25,7 +26,31 @@ const audienceLabel: Record<Audience, string> = {
   both: "both home buyers and home sellers",
 };
 
-function buildPrompt(input: Required<RequestBody>) {
+const RATE_LIMIT_MAX = 10;
+const RATE_LIMIT_WINDOW_MS = 60 * 60 * 1000;
+const rateLimitLog = new Map<string, number[]>();
+
+function getClientIp(request: Request): string {
+  const forwarded = request.headers.get("x-forwarded-for");
+  if (forwarded) return forwarded.split(",")[0]!.trim();
+  return request.headers.get("x-real-ip") ?? "unknown";
+}
+
+function checkRateLimit(ip: string): { allowed: boolean; retryAfterMin: number } {
+  const now = Date.now();
+  const history = rateLimitLog.get(ip) ?? [];
+  const recent = history.filter((t) => now - t < RATE_LIMIT_WINDOW_MS);
+  if (recent.length >= RATE_LIMIT_MAX) {
+    const oldest = recent[0]!;
+    const retryAfterMs = RATE_LIMIT_WINDOW_MS - (now - oldest);
+    return { allowed: false, retryAfterMin: Math.ceil(retryAfterMs / 60000) };
+  }
+  recent.push(now);
+  rateLimitLog.set(ip, recent);
+  return { allowed: true, retryAfterMin: 0 };
+}
+
+function buildPrompt(input: Required<Omit<RequestBody, "accessCode">>) {
   return `You are an expert copywriter for real estate agents. Write 5 distinct, professional cold outreach emails for the agent described below. Each email should sound human, warm, and consultative — never spammy.
 
 Agent details:
@@ -82,6 +107,35 @@ export async function POST(request: Request) {
     body = await request.json();
   } catch {
     return NextResponse.json({ error: "Invalid JSON body." }, { status: 400 });
+  }
+
+  const validCodes = (process.env.ACCESS_CODES ?? "")
+    .split(",")
+    .map((c) => c.trim())
+    .filter(Boolean);
+
+  if (validCodes.length > 0) {
+    const submitted = body.accessCode?.trim();
+    if (!submitted || !validCodes.includes(submitted)) {
+      return NextResponse.json(
+        {
+          error:
+            "Invalid or missing access code. Subscribe at Compass Line Ventures to receive your code.",
+        },
+        { status: 403 },
+      );
+    }
+  }
+
+  const ip = getClientIp(request);
+  const rate = checkRateLimit(ip);
+  if (!rate.allowed) {
+    return NextResponse.json(
+      {
+        error: `Rate limit reached. Try again in ${rate.retryAfterMin} minute${rate.retryAfterMin === 1 ? "" : "s"}.`,
+      },
+      { status: 429 },
+    );
   }
 
   const name = body.name?.trim();

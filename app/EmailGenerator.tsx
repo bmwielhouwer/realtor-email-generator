@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, type FormEvent } from "react";
+import { useEffect, useState, type FormEvent } from "react";
 
 type Audience = "sellers" | "buyers" | "both";
 
@@ -15,6 +15,7 @@ type FormState = {
   audience: Audience;
   uniqueSellingPoint: string;
   callToAction: string;
+  accessCode: string;
 };
 
 const initialForm: FormState = {
@@ -23,7 +24,10 @@ const initialForm: FormState = {
   audience: "sellers",
   uniqueSellingPoint: "",
   callToAction: "",
+  accessCode: "",
 };
+
+const ACCESS_CODE_STORAGE_KEY = "clv_access_code";
 
 export default function EmailGenerator() {
   const [form, setForm] = useState<FormState>(initialForm);
@@ -33,6 +37,15 @@ export default function EmailGenerator() {
 
   const updateField = <K extends keyof FormState>(key: K, value: FormState[K]) =>
     setForm((prev) => ({ ...prev, [key]: value }));
+
+  useEffect(() => {
+    try {
+      const saved = window.localStorage.getItem(ACCESS_CODE_STORAGE_KEY);
+      if (saved) setForm((prev) => ({ ...prev, accessCode: saved }));
+    } catch {
+      // localStorage unavailable; ignore.
+    }
+  }, []);
 
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -51,6 +64,12 @@ export default function EmailGenerator() {
 
       if (!response.ok) {
         throw new Error(data?.error ?? "Failed to generate emails.");
+      }
+
+      try {
+        window.localStorage.setItem(ACCESS_CODE_STORAGE_KEY, form.accessCode.trim());
+      } catch {
+        // localStorage unavailable; ignore.
       }
 
       setEmails(data.emails ?? []);
@@ -76,6 +95,35 @@ export default function EmailGenerator() {
           </h2>
           <p className="mt-2 text-sm text-silver-dark">
             We&apos;ll craft five tailored cold emails ready to send.
+          </p>
+        </div>
+
+        <div className="mb-6 rounded-lg border border-gold/30 bg-gold/5 p-4">
+          <label htmlFor="accessCode" className="field-label !text-navy">
+            Subscriber access code
+          </label>
+          <input
+            id="accessCode"
+            type="text"
+            required
+            autoComplete="off"
+            spellCheck={false}
+            value={form.accessCode}
+            onChange={(e) => updateField("accessCode", e.target.value)}
+            placeholder="CLV-XXXX-XXXX"
+            className="field-input font-mono tracking-wider"
+          />
+          <p className="mt-2 text-xs text-silver-dark">
+            Don&apos;t have a code yet?{" "}
+            <a
+              href="https://buy.stripe.com/dRm00c7mEbUOg7Ie2U9AA00"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="font-semibold text-gold underline-offset-2 hover:underline"
+            >
+              Subscribe to Compass Line Ventures
+            </a>{" "}
+            for $50 your first month to receive yours.
           </p>
         </div>
 

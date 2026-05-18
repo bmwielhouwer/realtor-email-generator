@@ -11,7 +11,7 @@ export default function ToolTabs() {
 
   return (
     <div className="space-y-8">
-      <div className="overflow-hidden rounded-xl border border-navy/10 bg-white shadow-sm">
+      <div className="overflow-hidden rounded-2xl border border-navy/10 bg-white shadow-[0_15px_40px_-15px_rgba(27,36,71,0.18)]">
         <nav className="flex" role="tablist" aria-label="Generator tools">
           <TabButton
             active={tool === "cold-email"}
@@ -20,6 +20,10 @@ export default function ToolTabs() {
             <span className="hidden sm:inline">Cold Email Generator</span>
             <span className="sm:hidden">Cold Emails</span>
           </TabButton>
+          <div
+            aria-hidden
+            className="my-3.5 w-px self-center bg-navy/10 sm:my-4"
+          />
           <TabButton
             active={tool === "listing"}
             onClick={() => setTool("listing")}
@@ -54,13 +58,17 @@ function TabButton({
       onClick={onClick}
       role="tab"
       aria-selected={active}
-      className={`flex-1 px-3 py-3.5 text-[11px] font-semibold uppercase tracking-[0.15em] leading-tight transition-colors duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-gold/40 focus-visible:ring-offset-2 sm:px-4 sm:text-xs sm:tracking-[0.2em] ${
-        active
-          ? "bg-navy text-white shadow-inner"
-          : "bg-white text-silver-dark hover:bg-navy/5 hover:text-navy"
+      className={`group relative flex-1 px-4 py-5 text-[11px] font-semibold uppercase tracking-[0.2em] leading-tight transition-colors duration-150 focus:outline-none focus-visible:bg-gold/5 sm:px-6 sm:text-xs sm:tracking-[0.22em] ${
+        active ? "text-navy" : "text-silver hover:text-navy"
       }`}
     >
-      {children}
+      <span className="block">{children}</span>
+      <span
+        aria-hidden
+        className={`absolute inset-x-4 bottom-0 h-[2px] rounded-full transition-all duration-200 sm:inset-x-6 ${
+          active ? "bg-gold" : "bg-transparent group-hover:bg-navy/15"
+        }`}
+      />
     </button>
   );
 }

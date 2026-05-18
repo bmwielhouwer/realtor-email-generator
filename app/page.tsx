@@ -11,7 +11,7 @@ export default function Home() {
             <img
               src="/logo.png"
               alt="Compass Line Ventures"
-              className="h-10 w-auto"
+              className="h-8 w-auto"
             />
           </a>
           <div className="flex items-center gap-5">
@@ -35,7 +35,7 @@ export default function Home() {
           <img
             src="/logo.png"
             alt="Compass Line Ventures"
-            className="mx-auto mb-10 h-24 w-auto sm:h-32"
+            className="mx-auto mb-10 h-20 w-auto sm:h-24"
           />
           <h1 className="font-serif text-4xl font-bold leading-[1.1] tracking-tight text-white sm:text-5xl md:text-6xl">
             Marketing Content for Realtors in Seconds
@@ -77,7 +77,7 @@ export default function Home() {
             <img
               src="/logo.png"
               alt="Compass Line Ventures"
-              className="h-9 w-auto"
+              className="h-8 w-auto"
             />
           </div>
           <div className="text-center text-xs text-silver sm:text-right">

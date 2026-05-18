@@ -46,30 +46,32 @@ export default function Home() {
             built exclusively for real estate professionals.
           </p>
           <div className="mx-auto mt-10 h-px w-20 bg-gold" />
-          <div className="mt-10 flex flex-col items-center gap-3">
-            <a
-              href={STRIPE_SUBSCRIBE_URL}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="btn-primary"
-            >
-              Try Pro — $50 First Month
-            </a>
+          <div className="mt-10 flex flex-col items-center gap-4">
+            <div className="flex w-full flex-col items-stretch gap-3 sm:w-auto sm:flex-row sm:items-center sm:justify-center sm:gap-4">
+              <a
+                href={STRIPE_SUBSCRIBE_URL}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="btn-primary"
+              >
+                Cold Email Pro — $50 First Month
+              </a>
+              <a
+                href={STRIPE_ALL_PLANS_URL}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center justify-center gap-2 rounded-lg border-2 border-gold bg-transparent px-6 py-2.5 text-sm font-semibold uppercase tracking-wider text-gold transition-all duration-200 hover:bg-gold hover:text-white focus:outline-none focus:ring-2 focus:ring-gold/40 focus:ring-offset-2 focus:ring-offset-navy"
+              >
+                Home Lister &amp; Suite Plans
+              </a>
+            </div>
             <p className="text-xs text-silver">
-              $200/mo after. Use code{" "}
+              Pro: $200/mo &middot; use code{" "}
               <span className="font-mono font-semibold tracking-wider text-gold">
                 TRY25
               </span>{" "}
-              at checkout. Cancel anytime.
+              for $50 first month. Cancel anytime.
             </p>
-            <a
-              href={STRIPE_ALL_PLANS_URL}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="mt-1 text-xs font-semibold uppercase tracking-[0.18em] text-silver underline-offset-4 transition-colors duration-150 hover:text-gold hover:underline focus:outline-none focus:underline"
-            >
-              See Home Lister &amp; Suite plans &rarr;
-            </a>
           </div>
         </div>
       </section>

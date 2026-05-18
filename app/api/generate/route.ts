@@ -1,5 +1,6 @@
 import Anthropic from "@anthropic-ai/sdk";
 import { NextResponse } from "next/server";
+import { validateAccessCode } from "../../lib/codes";
 
 export const runtime = "nodejs";
 export const maxDuration = 60;
@@ -109,22 +110,13 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Invalid JSON body." }, { status: 400 });
   }
 
-  const validCodes = (process.env.ACCESS_CODES ?? "")
-    .split(",")
-    .map((c) => c.trim())
-    .filter(Boolean);
-
-  if (validCodes.length > 0) {
-    const submitted = body.accessCode?.trim();
-    if (!submitted || !validCodes.includes(submitted)) {
-      return NextResponse.json(
-        {
-          error:
-            "Invalid or missing access code. Subscribe at Compass Line Ventures to receive your code.",
-        },
-        { status: 403 },
-      );
-    }
+  const auth = await validateAccessCode(body.accessCode, "cold_email");
+  if (!auth.ok) {
+    const message =
+      auth.reason === "plan_mismatch"
+        ? "Your plan doesn't include the Cold Email Generator. Upgrade to the Suite to unlock it."
+        : "Invalid or missing access code. Subscribe at Compass Line Ventures to receive your code.";
+    return NextResponse.json({ error: message }, { status: 403 });
   }
 
   const ip = getClientIp(request);

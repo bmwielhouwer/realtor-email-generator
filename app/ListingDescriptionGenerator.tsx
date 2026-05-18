@@ -128,12 +128,12 @@ export default function ListingDescriptionGenerator() {
           <p className="mt-2 text-xs text-silver-dark">
             Don&apos;t have a code yet?{" "}
             <a
-              href="https://buy.stripe.com/00w3cogXebUO1cO8IA9AA05"
+              href="https://buy.stripe.com/6oU3coeP6aQK3kW2kc9AA06"
               target="_blank"
               rel="noopener noreferrer"
               className="font-semibold text-gold underline-offset-2 hover:underline"
             >
-              Subscribe to Home Lister or the full Suite
+              Subscribe to Listing Pro
             </a>{" "}
             to receive yours.
           </p>

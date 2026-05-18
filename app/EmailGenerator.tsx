@@ -114,8 +114,16 @@ export default function EmailGenerator() {
             className="field-input font-mono tracking-wider"
           />
           <p className="mt-2 text-xs text-silver-dark">
-            Don&apos;t have a code yet? Subscribe to Compass Line Ventures to
-            receive yours.
+            Don&apos;t have a code yet?{" "}
+            <a
+              href="https://buy.stripe.com/dRm00c7mEbUOg7Ie2U9AA00"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="font-semibold text-gold underline-offset-2 hover:underline"
+            >
+              Subscribe to Compass Line Ventures
+            </a>{" "}
+            for $50 your first month to receive yours.
           </p>
         </div>
 

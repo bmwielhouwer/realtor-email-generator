@@ -128,14 +128,14 @@ export default function ListingDescriptionGenerator() {
           <p className="mt-2 text-xs text-silver-dark">
             Don&apos;t have a code yet?{" "}
             <a
-              href="https://buy.stripe.com/dRm00c7mEbUOg7Ie2U9AA00"
+              href="https://buy.stripe.com/00w3cogXebUO1cO8IA9AA05"
               target="_blank"
               rel="noopener noreferrer"
               className="font-semibold text-gold underline-offset-2 hover:underline"
             >
-              Subscribe to Compass Line Ventures
+              Subscribe to Home Lister or the full Suite
             </a>{" "}
-            for $50 your first month to receive yours.
+            to receive yours.
           </p>
         </div>
 

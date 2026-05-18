@@ -1,6 +1,7 @@
 import ToolTabs from "./ToolTabs";
 
 const STRIPE_SUBSCRIBE_URL = "https://buy.stripe.com/dRm00c7mEbUOg7Ie2U9AA00";
+const STRIPE_ALL_PLANS_URL = "https://buy.stripe.com/00w3cogXebUO1cO8IA9AA05";
 
 export default function Home() {
   return (
@@ -61,6 +62,14 @@ export default function Home() {
               </span>{" "}
               at checkout. Cancel anytime.
             </p>
+            <a
+              href={STRIPE_ALL_PLANS_URL}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="mt-1 text-xs font-semibold uppercase tracking-[0.18em] text-silver underline-offset-4 transition-colors duration-150 hover:text-gold hover:underline focus:outline-none focus:underline"
+            >
+              See Home Lister &amp; Suite plans &rarr;
+            </a>
           </div>
         </div>
       </section>

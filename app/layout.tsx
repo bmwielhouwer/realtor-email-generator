@@ -15,9 +15,9 @@ const playfair = Playfair_Display({
 });
 
 export const metadata: Metadata = {
-  title: "Realtor Email Generator | Compass Line Ventures",
+  title: "Realtor Toolkit | Compass Line Ventures",
   description:
-    "Generate 5 professional cold emails tailored for real estate agent outreach. Built exclusively for real estate professionals.",
+    "Generate professional cold outreach emails and full listing marketing packages tailored for real estate agents. Built exclusively for real estate professionals.",
 };
 
 export default function RootLayout({

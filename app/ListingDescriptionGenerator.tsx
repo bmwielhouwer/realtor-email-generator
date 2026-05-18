@@ -3,38 +3,49 @@
 import { useEffect, useState, type FormEvent } from "react";
 import OutputCard from "./OutputCard";
 
-type Audience = "sellers" | "buyers" | "both";
+type BuyerType = "first_time" | "luxury" | "investor" | "family";
 
-type GeneratedEmail = {
-  subject: string;
+type GeneratedOutput = {
+  kind: "mls" | "social" | "email" | "text";
+  title: string;
   body: string;
 };
 
 type FormState = {
-  name: string;
-  location: string;
-  audience: Audience;
-  uniqueSellingPoint: string;
-  callToAction: string;
+  agentName: string;
+  propertyAddress: string;
+  cityState: string;
+  bedrooms: string;
+  bathrooms: string;
+  sqft: string;
+  yearBuilt: string;
+  features: string;
+  neighborhood: string;
+  buyerType: BuyerType;
   accessCode: string;
 };
 
 const initialForm: FormState = {
-  name: "",
-  location: "",
-  audience: "sellers",
-  uniqueSellingPoint: "",
-  callToAction: "",
+  agentName: "",
+  propertyAddress: "",
+  cityState: "",
+  bedrooms: "",
+  bathrooms: "",
+  sqft: "",
+  yearBuilt: "",
+  features: "",
+  neighborhood: "",
+  buyerType: "first_time",
   accessCode: "",
 };
 
 const ACCESS_CODE_STORAGE_KEY = "clv_access_code";
 
-export default function EmailGenerator() {
+export default function ListingDescriptionGenerator() {
   const [form, setForm] = useState<FormState>(initialForm);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [emails, setEmails] = useState<GeneratedEmail[]>([]);
+  const [outputs, setOutputs] = useState<GeneratedOutput[]>([]);
 
   const updateField = <K extends keyof FormState>(key: K, value: FormState[K]) =>
     setForm((prev) => ({ ...prev, [key]: value }));
@@ -52,10 +63,10 @@ export default function EmailGenerator() {
     event.preventDefault();
     setLoading(true);
     setError(null);
-    setEmails([]);
+    setOutputs([]);
 
     try {
-      const response = await fetch("/api/generate", {
+      const response = await fetch("/api/listing", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(form),
@@ -64,7 +75,7 @@ export default function EmailGenerator() {
       const data = await response.json();
 
       if (!response.ok) {
-        throw new Error(data?.error ?? "Failed to generate emails.");
+        throw new Error(data?.error ?? "Failed to generate listing content.");
       }
 
       try {
@@ -73,7 +84,7 @@ export default function EmailGenerator() {
         // localStorage unavailable; ignore.
       }
 
-      setEmails(data.emails ?? []);
+      setOutputs(data.outputs ?? []);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Something went wrong.");
     } finally {
@@ -92,19 +103,19 @@ export default function EmailGenerator() {
             Step 1
           </div>
           <h2 className="mt-2 font-serif text-2xl font-bold text-navy sm:text-3xl">
-            Tell us about your business
+            Tell us about the property
           </h2>
           <p className="mt-2 text-sm text-silver-dark">
-            We&apos;ll craft five tailored cold emails ready to send.
+            We&apos;ll craft four polished marketing pieces tailored to your buyer.
           </p>
         </div>
 
         <div className="mb-6 rounded-lg border border-gold/30 bg-gold/5 p-4">
-          <label htmlFor="accessCode" className="field-label !text-navy">
+          <label htmlFor="listingAccessCode" className="field-label !text-navy">
             Subscriber access code
           </label>
           <input
-            id="accessCode"
+            id="listingAccessCode"
             type="text"
             required
             autoComplete="off"
@@ -130,78 +141,165 @@ export default function EmailGenerator() {
 
         <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
           <div>
-            <label htmlFor="name" className="field-label">
-              Your name
+            <label htmlFor="agentName" className="field-label">
+              Agent name
             </label>
             <input
-              id="name"
+              id="agentName"
               type="text"
               required
-              value={form.name}
-              onChange={(e) => updateField("name", e.target.value)}
+              value={form.agentName}
+              onChange={(e) => updateField("agentName", e.target.value)}
               placeholder="Jane Doe"
               className="field-input"
             />
           </div>
 
           <div>
-            <label htmlFor="location" className="field-label">
+            <label htmlFor="propertyAddress" className="field-label">
+              Property address
+            </label>
+            <input
+              id="propertyAddress"
+              type="text"
+              required
+              value={form.propertyAddress}
+              onChange={(e) => updateField("propertyAddress", e.target.value)}
+              placeholder="123 Oak Lane"
+              className="field-input"
+            />
+          </div>
+
+          <div>
+            <label htmlFor="cityState" className="field-label">
               City &amp; state
             </label>
             <input
-              id="location"
+              id="cityState"
               type="text"
               required
-              value={form.location}
-              onChange={(e) => updateField("location", e.target.value)}
+              value={form.cityState}
+              onChange={(e) => updateField("cityState", e.target.value)}
               placeholder="Austin, TX"
               className="field-input"
             />
           </div>
 
           <div>
-            <label htmlFor="audience" className="field-label">
-              Target audience
+            <label htmlFor="buyerType" className="field-label">
+              Target buyer type
             </label>
             <select
-              id="audience"
+              id="buyerType"
               required
-              value={form.audience}
-              onChange={(e) => updateField("audience", e.target.value as Audience)}
+              value={form.buyerType}
+              onChange={(e) =>
+                updateField("buyerType", e.target.value as BuyerType)
+              }
               className="field-input"
             >
-              <option value="sellers">Home sellers</option>
-              <option value="buyers">Home buyers</option>
-              <option value="both">Both sellers and buyers</option>
+              <option value="first_time">First-time buyer</option>
+              <option value="luxury">Luxury buyer</option>
+              <option value="investor">Investor</option>
+              <option value="family">Family</option>
             </select>
           </div>
 
           <div>
-            <label htmlFor="cta" className="field-label">
-              Call to action
+            <label htmlFor="bedrooms" className="field-label">
+              Bedrooms
             </label>
             <input
-              id="cta"
-              type="text"
+              id="bedrooms"
+              type="number"
               required
-              value={form.callToAction}
-              onChange={(e) => updateField("callToAction", e.target.value)}
-              placeholder="Book a free 15-minute consultation"
+              min={0}
+              step={1}
+              value={form.bedrooms}
+              onChange={(e) => updateField("bedrooms", e.target.value)}
+              placeholder="4"
+              className="field-input"
+            />
+          </div>
+
+          <div>
+            <label htmlFor="bathrooms" className="field-label">
+              Bathrooms
+            </label>
+            <input
+              id="bathrooms"
+              type="number"
+              required
+              min={0}
+              step={0.5}
+              value={form.bathrooms}
+              onChange={(e) => updateField("bathrooms", e.target.value)}
+              placeholder="2.5"
+              className="field-input"
+            />
+          </div>
+
+          <div>
+            <label htmlFor="sqft" className="field-label">
+              Square footage
+            </label>
+            <input
+              id="sqft"
+              type="number"
+              required
+              min={0}
+              step={1}
+              value={form.sqft}
+              onChange={(e) => updateField("sqft", e.target.value)}
+              placeholder="2400"
+              className="field-input"
+            />
+          </div>
+
+          <div>
+            <label htmlFor="yearBuilt" className="field-label">
+              Year built
+            </label>
+            <input
+              id="yearBuilt"
+              type="number"
+              required
+              min={1700}
+              max={new Date().getFullYear() + 1}
+              step={1}
+              value={form.yearBuilt}
+              onChange={(e) => updateField("yearBuilt", e.target.value)}
+              placeholder="2015"
               className="field-input"
             />
           </div>
 
           <div className="sm:col-span-2">
-            <label htmlFor="usp" className="field-label">
-              Your unique selling point
+            <label htmlFor="features" className="field-label">
+              Key features and upgrades
             </label>
             <textarea
-              id="usp"
+              id="features"
               required
               rows={3}
-              value={form.uniqueSellingPoint}
-              onChange={(e) => updateField("uniqueSellingPoint", e.target.value)}
-              placeholder="15 years specializing in downtown condos with a 98% list-to-sale price ratio."
+              value={form.features}
+              onChange={(e) => updateField("features", e.target.value)}
+              placeholder="Chef's kitchen with quartz counters, primary suite with spa bath, new roof (2023), three-car garage, smart-home wiring."
+              className="field-input resize-none"
+            />
+          </div>
+
+          <div className="sm:col-span-2">
+            <label htmlFor="neighborhood" className="field-label">
+              Neighborhood highlights
+            </label>
+            <textarea
+              id="neighborhood"
+              required
+              rows={3}
+              value={form.neighborhood}
+              onChange={(e) => updateField("neighborhood", e.target.value)}
+              placeholder="Walk to top-rated elementary, blocks from downtown shops and the greenbelt trail, low-traffic cul-de-sac."
               className="field-input resize-none"
             />
           </div>
@@ -209,7 +307,7 @@ export default function EmailGenerator() {
 
         <div className="mt-8 flex flex-col-reverse items-stretch justify-between gap-4 border-t border-silver/20 pt-6 sm:flex-row sm:items-center">
           <p className="text-xs text-silver-dark">
-            5 ready-to-send emails &middot; Generated in seconds
+            4 ready-to-publish pieces &middot; Generated in seconds
           </p>
           <button type="submit" disabled={loading} className="btn-primary">
             {loading ? (
@@ -218,7 +316,7 @@ export default function EmailGenerator() {
                 Generating...
               </>
             ) : (
-              <>Generate Emails</>
+              <>Generate Listing Content</>
             )}
           </button>
         </div>
@@ -233,7 +331,7 @@ export default function EmailGenerator() {
         )}
       </form>
 
-      {emails.length > 0 && (
+      {outputs.length > 0 && (
         <div className="space-y-5">
           <div className="flex items-baseline justify-between">
             <div>
@@ -241,21 +339,20 @@ export default function EmailGenerator() {
                 Step 2
               </div>
               <h2 className="mt-1 font-serif text-2xl font-bold text-navy sm:text-3xl">
-                Your Emails
+                Your Listing Content
               </h2>
             </div>
             <span className="text-[11px] font-semibold uppercase tracking-[0.2em] text-silver-dark">
-              {emails.length} generated
+              {outputs.length} generated
             </span>
           </div>
           <div className="grid gap-4">
-            {emails.map((email, idx) => (
+            {outputs.map((output, idx) => (
               <OutputCard
                 key={idx}
-                eyebrow={`Email ${idx + 1}`}
-                heading={email.subject}
-                body={email.body}
-                copyText={`Subject: ${email.subject}\n\n${email.body}`}
+                eyebrow={`Output ${idx + 1}`}
+                heading={output.title}
+                body={output.body}
               />
             ))}
           </div>

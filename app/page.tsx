@@ -1,4 +1,4 @@
-import EmailGenerator from "./EmailGenerator";
+import ToolTabs from "./ToolTabs";
 
 const STRIPE_SUBSCRIBE_URL = "https://buy.stripe.com/dRm00c7mEbUOg7Ie2U9AA00";
 
@@ -16,7 +16,7 @@ export default function Home() {
           </a>
           <div className="flex items-center gap-5">
             <span className="hidden text-[11px] font-semibold uppercase tracking-[0.25em] text-silver md:block">
-              Realtor Email Generator
+              Realtor Toolkit
             </span>
             <a
               href={STRIPE_SUBSCRIBE_URL}
@@ -38,10 +38,11 @@ export default function Home() {
             className="mx-auto mb-10 h-24 w-auto sm:h-32"
           />
           <h1 className="font-serif text-4xl font-bold leading-[1.1] tracking-tight text-white sm:text-5xl md:text-6xl">
-            Generate Professional Cold Emails in Seconds
+            Marketing Content for Realtors in Seconds
           </h1>
           <p className="mx-auto mt-6 max-w-2xl text-base text-silver sm:text-lg">
-            Built exclusively for real estate professionals
+            Cold outreach emails and full listing marketing packages &mdash;
+            built exclusively for real estate professionals.
           </p>
           <div className="mx-auto mt-10 h-px w-20 bg-gold" />
           <div className="mt-10 flex flex-col items-center gap-3">
@@ -66,7 +67,7 @@ export default function Home() {
 
       <section className="bg-white">
         <div className="mx-auto -mt-16 max-w-4xl px-6 pb-24 sm:-mt-20">
-          <EmailGenerator />
+          <ToolTabs />
         </div>
       </section>
 

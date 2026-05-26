@@ -30,7 +30,7 @@ const initialForm: FormState = {
 
 const ACCESS_CODE_STORAGE_KEY = "clv_access_code";
 
-export default function EmailGenerator() {
+export default function EmailGenerator({ apiKey }: { apiKey: string }) {
   const [form, setForm] = useState<FormState>(initialForm);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -57,7 +57,10 @@ export default function EmailGenerator() {
     try {
       const response = await fetch("/api/generate", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+          ...(apiKey ? { "x-anthropic-key": apiKey } : {}),
+        },
         body: JSON.stringify(form),
       });
 

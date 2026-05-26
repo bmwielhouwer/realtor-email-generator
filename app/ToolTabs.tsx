@@ -1,16 +1,61 @@
 "use client";
 
-import { useState, type ReactNode } from "react";
+import { useState, useEffect, type ReactNode } from "react";
 import EmailGenerator from "./EmailGenerator";
 import ListingDescriptionGenerator from "./ListingDescriptionGenerator";
 
 type Tool = "cold-email" | "listing";
 
+const API_KEY_STORAGE_KEY = "anthropic_api_key";
+
 export default function ToolTabs() {
   const [tool, setTool] = useState<Tool>("cold-email");
+  const [apiKey, setApiKey] = useState("");
+
+  useEffect(() => {
+    try {
+      const saved = window.localStorage.getItem(API_KEY_STORAGE_KEY);
+      if (saved) setApiKey(saved);
+    } catch {
+      // localStorage unavailable; ignore.
+    }
+  }, []);
+
+  const handleApiKeyChange = (value: string) => {
+    setApiKey(value);
+    try {
+      if (value) {
+        window.localStorage.setItem(API_KEY_STORAGE_KEY, value);
+      } else {
+        window.localStorage.removeItem(API_KEY_STORAGE_KEY);
+      }
+    } catch {
+      // localStorage unavailable; ignore.
+    }
+  };
 
   return (
     <div className="space-y-8">
+      <div className="rounded-xl border border-navy/10 bg-white p-6 shadow-sm">
+        <label htmlFor="anthropicApiKey" className="field-label !text-navy">
+          Anthropic API Key
+        </label>
+        <input
+          id="anthropicApiKey"
+          type="password"
+          autoComplete="off"
+          spellCheck={false}
+          value={apiKey}
+          onChange={(e) => handleApiKeyChange(e.target.value)}
+          placeholder="sk-ant-..."
+          className="field-input font-mono"
+        />
+        <p className="mt-2 text-xs text-silver-dark">
+          Stored only in your browser. Sent directly to our server on each
+          request — never logged or persisted on our end.
+        </p>
+      </div>
+
       <div className="overflow-hidden rounded-xl border border-navy/10 bg-white shadow-sm">
         <nav className="flex" role="tablist" aria-label="Generator tools">
           <TabButton
@@ -31,9 +76,9 @@ export default function ToolTabs() {
       </div>
 
       {tool === "cold-email" ? (
-        <EmailGenerator />
+        <EmailGenerator apiKey={apiKey} />
       ) : (
-        <ListingDescriptionGenerator />
+        <ListingDescriptionGenerator apiKey={apiKey} />
       )}
     </div>
   );

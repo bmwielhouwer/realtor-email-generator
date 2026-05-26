@@ -95,10 +95,12 @@ function extractJson(text: string): { emails: GeneratedEmail[] } {
 }
 
 export async function POST(request: Request) {
-  const apiKey = process.env.ANTHROPIC_API_KEY;
+  const apiKey =
+    (request.headers.get("x-anthropic-key") ?? "").trim() ||
+    process.env.ANTHROPIC_API_KEY;
   if (!apiKey) {
     return NextResponse.json(
-      { error: "Server is missing ANTHROPIC_API_KEY." },
+      { error: "No Anthropic API key provided. Enter your key in the API Key field above." },
       { status: 500 },
     );
   }

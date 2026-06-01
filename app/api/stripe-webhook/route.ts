@@ -166,6 +166,18 @@ async function handleCheckoutCompleted(
     created_at: now,
   });
 
+  // Also store the code keyed by code (StoredCode shape) so the existing
+  // /api/generate validation (validateAccessCode -> lookupCode) accepts it.
+  // Founding Member unlocks every tool, so plan is "both".
+  await redis.set(`code:${code}`, {
+    email: normalizedEmail,
+    name,
+    plan: "both",
+    customerId,
+    subscriptionId,
+    createdAt: now,
+  });
+
   await sendWelcomeEmail({ to: email, name, code });
 }
 

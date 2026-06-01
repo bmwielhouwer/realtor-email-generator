@@ -1,6 +1,12 @@
 import Anthropic from "@anthropic-ai/sdk";
 import { NextResponse } from "next/server";
 import { validateAccessCode } from "../../lib/codes";
+import {
+  MONTHLY_GENERATION_LIMIT,
+  USAGE_LIMIT_MESSAGE,
+  getMonthlyUsage,
+  recordGeneration,
+} from "../../lib/usage";
 
 export const runtime = "nodejs";
 export const maxDuration = 60;
@@ -135,12 +141,10 @@ function extractJson(text: string): { outputs: ListingOutput[] } {
 }
 
 export async function POST(request: Request) {
-  const apiKey =
-    (request.headers.get("x-anthropic-key") ?? "").trim() ||
-    process.env.ANTHROPIC_API_KEY;
+  const apiKey = process.env.ANTHROPIC_API_KEY;
   if (!apiKey) {
     return NextResponse.json(
-      { error: "No Anthropic API key provided. Enter your key in the API Key field above." },
+      { error: "The service is temporarily unavailable. Please try again shortly." },
       { status: 500 },
     );
   }
@@ -159,6 +163,15 @@ export async function POST(request: Request) {
         ? "Your plan doesn't include the Listing Description Generator. Upgrade to the Suite to unlock it."
         : "Invalid or missing access code. Subscribe at Compass Line Ventures to receive your code.";
     return NextResponse.json({ error: message }, { status: 403 });
+  }
+
+  // Enforce the per-customer monthly generation cap. Env/test codes have no
+  // associated email and are exempt.
+  if (auth.email) {
+    const used = await getMonthlyUsage(auth.email);
+    if (used >= MONTHLY_GENERATION_LIMIT) {
+      return NextResponse.json({ error: USAGE_LIMIT_MESSAGE }, { status: 429 });
+    }
   }
 
   const ip = getClientIp(request);
@@ -259,6 +272,10 @@ export async function POST(request: Request) {
         { error: "Could not parse outputs from model response." },
         { status: 502 },
       );
+    }
+
+    if (auth.email) {
+      await recordGeneration(auth.email);
     }
 
     return NextResponse.json({ outputs: sanitized });

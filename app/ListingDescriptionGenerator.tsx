@@ -41,7 +41,7 @@ const initialForm: FormState = {
 
 const ACCESS_CODE_STORAGE_KEY = "clv_access_code";
 
-export default function ListingDescriptionGenerator({ apiKey }: { apiKey: string }) {
+export default function ListingDescriptionGenerator() {
   const [form, setForm] = useState<FormState>(initialForm);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -70,7 +70,6 @@ export default function ListingDescriptionGenerator({ apiKey }: { apiKey: string
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          ...(apiKey ? { "x-anthropic-key": apiKey } : {}),
         },
         body: JSON.stringify(form),
       });
@@ -131,12 +130,12 @@ export default function ListingDescriptionGenerator({ apiKey }: { apiKey: string
           <p className="mt-2 text-xs text-silver-dark">
             Don&apos;t have a code yet?{" "}
             <a
-              href="https://buy.stripe.com/6oU3coeP6aQK3kW2kc9AA06"
+              href="https://buy.stripe.com/7sYeV6dL2bUO9Jkf6Y9AA0c"
               target="_blank"
               rel="noopener noreferrer"
               className="font-semibold text-gold underline-offset-2 hover:underline"
             >
-              Subscribe to Listing Pro
+              Become a Founding Member
             </a>{" "}
             to receive yours.
           </p>

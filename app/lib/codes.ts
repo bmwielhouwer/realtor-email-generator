@@ -106,7 +106,10 @@ export async function revokeBySubscription(
 export async function validateAccessCode(
   submitted: string | undefined | null,
   tool: Tool,
-): Promise<{ ok: true; plan: Plan } | { ok: false; reason: string }> {
+): Promise<
+  | { ok: true; plan: Plan; email: string | null }
+  | { ok: false; reason: string }
+> {
   const code = (submitted ?? "").trim();
   if (!code) {
     return { ok: false, reason: "missing" };
@@ -118,7 +121,9 @@ export async function validateAccessCode(
     .filter(Boolean);
 
   if (envCodes.some((c) => safeEqual(c, code))) {
-    return { ok: true, plan: "both" };
+    // Personal/test codes from the env allow-list aren't tied to a customer
+    // email, so they bypass the per-customer usage cap.
+    return { ok: true, plan: "both", email: null };
   }
 
   let stored: StoredCode | null = null;
@@ -134,7 +139,7 @@ export async function validateAccessCode(
   if (!planAllowsTool(stored.plan, tool)) {
     return { ok: false, reason: "plan_mismatch" };
   }
-  return { ok: true, plan: stored.plan };
+  return { ok: true, plan: stored.plan, email: stored.email };
 }
 
 function safeEqual(a: string, b: string): boolean {

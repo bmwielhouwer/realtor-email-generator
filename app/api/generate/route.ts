@@ -1,6 +1,7 @@
 import Anthropic from "@anthropic-ai/sdk";
 import { NextResponse } from "next/server";
 import { validateAccessCode } from "../../lib/codes";
+import { isSubscriptionActive } from "../../lib/subscriptions";
 import {
   MONTHLY_GENERATION_LIMIT,
   USAGE_LIMIT_MESSAGE,
@@ -125,9 +126,17 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: message }, { status: 403 });
   }
 
-  // Enforce the per-customer monthly generation cap. Env/test codes have no
-  // associated email and are exempt.
+  // Require an active Stripe subscription. Env/test codes have no associated
+  // email and are exempt from both the subscription check and usage cap.
   if (auth.email) {
+    if (!(await isSubscriptionActive(auth.email))) {
+      return NextResponse.json(
+        { error: "Subscription required." },
+        { status: 403 },
+      );
+    }
+
+    // Enforce the per-customer monthly generation cap.
     const used = await getMonthlyUsage(auth.email);
     if (used >= MONTHLY_GENERATION_LIMIT) {
       return NextResponse.json({ error: USAGE_LIMIT_MESSAGE }, { status: 429 });

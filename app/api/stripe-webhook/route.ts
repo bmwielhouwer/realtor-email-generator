@@ -30,10 +30,17 @@ function getStripe(): Stripe {
 let cachedRedis: Redis | null = null;
 function getRedis(): Redis {
   if (cachedRedis) return cachedRedis;
-  const url = process.env.UPSTASH_REDIS_REST_URL;
-  const token = process.env.UPSTASH_REDIS_REST_TOKEN;
+  // Vercel's KV integration exposes credentials as KV_REST_API_*; fall back to
+  // those when the UPSTASH_* names aren't set so the webhook works in either
+  // configuration.
+  const url =
+    process.env.UPSTASH_REDIS_REST_URL ?? process.env.KV_REST_API_URL;
+  const token =
+    process.env.UPSTASH_REDIS_REST_TOKEN ?? process.env.KV_REST_API_TOKEN;
   if (!url || !token) {
-    throw new Error("Missing UPSTASH_REDIS_REST_URL or UPSTASH_REDIS_REST_TOKEN.");
+    throw new Error(
+      "Missing UPSTASH_REDIS_REST_URL/KV_REST_API_URL or UPSTASH_REDIS_REST_TOKEN/KV_REST_API_TOKEN.",
+    );
   }
   cachedRedis = new Redis({ url, token });
   return cachedRedis;
@@ -272,11 +279,18 @@ Questions? Just reply to this email and Brian will get back to you.
 
 — Compass Line Ventures`;
 
-  await getResend().emails.send({
+  const { error } = await getResend().emails.send({
     from: FROM_ADDRESS,
     to: args.to,
     subject,
     html,
     text,
   });
+  // Resend reports failures in the response body rather than throwing, so
+  // surface them instead of silently "succeeding".
+  if (error) {
+    throw new Error(
+      `Resend failed to send welcome email to ${args.to}: ${error.message}`,
+    );
+  }
 }

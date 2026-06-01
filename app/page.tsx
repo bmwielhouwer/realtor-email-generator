@@ -1,8 +1,6 @@
 import ToolTabs from "./ToolTabs";
 
-const STRIPE_COLD_EMAIL_URL = "https://buy.stripe.com/dRm00c7mEbUOg7Ie2U9AA00";
-const STRIPE_LISTING_URL = "https://buy.stripe.com/6oU3coeP6aQK3kW2kc9AA06";
-const STRIPE_SUITE_URL = "https://buy.stripe.com/8x24gs4as0c6g7I6As9AA07";
+const STRIPE_FOUNDING_URL = "https://buy.stripe.com/7sYeV6dL2bUO9Jkf6Y9AA0c";
 
 export default function Home() {
   return (
@@ -18,10 +16,10 @@ export default function Home() {
           </a>
           <div className="flex items-center gap-5">
             <span className="hidden text-[11px] font-semibold uppercase tracking-[0.25em] text-silver md:block">
-              Realtor Toolkit
+              Agent Marketing Autopilot
             </span>
             <a
-              href={STRIPE_COLD_EMAIL_URL}
+              href={STRIPE_FOUNDING_URL}
               target="_blank"
               rel="noopener noreferrer"
               className="inline-flex items-center justify-center rounded-lg bg-gold px-4 py-2 text-xs font-semibold uppercase tracking-wider text-white shadow-sm transition-all duration-200 hover:bg-gold-600 focus:outline-none focus:ring-2 focus:ring-gold/40 focus:ring-offset-2 focus:ring-offset-navy"
@@ -40,41 +38,17 @@ export default function Home() {
             className="mx-auto mb-10 h-24 w-auto sm:h-32"
           />
           <h1 className="font-serif text-4xl font-bold leading-[1.1] tracking-tight text-white sm:text-5xl md:text-6xl">
-            Marketing Content for Realtors in Seconds
+            Agent Marketing Autopilot
           </h1>
           <p className="mx-auto mt-6 max-w-2xl text-base text-silver sm:text-lg">
-            Cold outreach emails and full listing marketing packages &mdash;
-            built exclusively for real estate professionals.
+            Listing descriptions, social posts, follow-up sequences, and
+            just-listed/just-sold content &mdash; written for real estate, not
+            generic AI.
           </p>
           <div className="mx-auto mt-10 h-px w-20 bg-gold" />
 
-          <div className="mt-12 grid grid-cols-1 gap-5 text-left sm:grid-cols-3 sm:gap-5">
-            <PlanCard
-              name="Cold Email Pro"
-              price="$200"
-              description="Five tailored cold outreach emails on demand, calibrated to your market and audience."
-              accent={
-                <>
-                  $50 first month with{" "}
-                  <span className="font-mono tracking-wider">TRY25</span>
-                </>
-              }
-              ctaHref={STRIPE_COLD_EMAIL_URL}
-            />
-            <PlanCard
-              name="The Suite"
-              price="$299"
-              description="Both tools, one subscription. Cold emails plus full listing marketing whenever you need them."
-              accent="Save $101/mo vs subscribing separately"
-              ctaHref={STRIPE_SUITE_URL}
-              highlight
-            />
-            <PlanCard
-              name="Listing Pro"
-              price="$200"
-              description="MLS description, social caption, buyer email, and SMS for any listing &mdash; tuned to the target buyer."
-              ctaHref={STRIPE_LISTING_URL}
-            />
+          <div className="mx-auto mt-12 max-w-md">
+            <FoundingMemberCard ctaHref={STRIPE_FOUNDING_URL} />
           </div>
 
           <p className="mt-8 text-xs text-silver">
@@ -112,57 +86,58 @@ export default function Home() {
   );
 }
 
-function PlanCard({
-  name,
-  price,
-  description,
-  accent,
-  ctaHref,
-  highlight = false,
-}: {
-  name: string;
-  price: string;
-  description: React.ReactNode;
-  accent?: React.ReactNode;
-  ctaHref: string;
-  highlight?: boolean;
-}) {
+const FEATURES = [
+  "Listing descriptions that don't sound like every other agent's",
+  "Social media captions ready to post for Instagram, Facebook, LinkedIn",
+  "Follow-up email sequences for buyers, sellers, and cold leads",
+];
+
+function FoundingMemberCard({ ctaHref }: { ctaHref: string }) {
   return (
-    <div
-      className={`relative flex flex-col rounded-2xl bg-white p-6 sm:p-7 ${
-        highlight
-          ? "border-2 border-gold shadow-[0_25px_60px_-15px_rgba(184,149,42,0.45)] sm:-translate-y-2"
-          : "border border-white/15 shadow-[0_15px_40px_-15px_rgba(0,0,0,0.35)]"
-      }`}
-    >
-      {highlight && (
-        <span className="absolute -top-3 left-1/2 -translate-x-1/2 whitespace-nowrap rounded-full bg-gold px-3 py-1 text-[10px] font-bold uppercase tracking-[0.2em] text-white shadow-sm">
-          Best Value
-        </span>
-      )}
-      <div className="text-[11px] font-semibold uppercase tracking-[0.2em] text-gold">
-        {name}
+    <div className="relative flex flex-col rounded-2xl border-2 border-gold bg-white p-7 text-left shadow-[0_25px_60px_-15px_rgba(184,149,42,0.45)] sm:p-8">
+      <span className="absolute -top-3 left-1/2 -translate-x-1/2 whitespace-nowrap rounded-full bg-gold px-3 py-1 text-[10px] font-bold uppercase tracking-[0.2em] text-white shadow-sm">
+        Founding Member
+      </span>
+      <div className="text-center">
+        <div className="flex items-baseline justify-center">
+          <span className="font-serif text-5xl font-bold text-navy">$29</span>
+          <span className="ml-1 text-sm text-silver-dark">/mo</span>
+        </div>
+        <p className="mt-3 text-sm font-semibold text-gold">
+          For your first 6 months. Then $49/mo.
+        </p>
+        <p className="mt-1 text-xs text-silver-dark">
+          Limited to the first 25 agents.
+        </p>
       </div>
-      <div className="mt-3 flex items-baseline">
-        <span className="font-serif text-4xl font-bold text-navy">{price}</span>
-        <span className="ml-1 text-sm text-silver-dark">/mo</span>
-      </div>
-      <p className="mt-3 text-xs leading-relaxed text-silver-dark">
-        {description}
-      </p>
-      {accent && (
-        <p className="mt-3 text-xs font-semibold text-gold">{accent}</p>
-      )}
-      <div className="mt-6 flex-1" aria-hidden />
+
+      <ul className="mt-7 space-y-3 border-t border-silver/40 pt-6">
+        {FEATURES.map((feature) => (
+          <li key={feature} className="flex items-start gap-3">
+            <svg
+              className="mt-0.5 h-4 w-4 flex-shrink-0 text-gold"
+              viewBox="0 0 20 20"
+              fill="currentColor"
+              aria-hidden
+            >
+              <path
+                fillRule="evenodd"
+                d="M16.704 5.29a1 1 0 010 1.42l-7.5 7.5a1 1 0 01-1.42 0l-3.5-3.5a1 1 0 011.42-1.42l2.79 2.79 6.79-6.79a1 1 0 011.42 0z"
+                clipRule="evenodd"
+              />
+            </svg>
+            <span className="text-sm leading-relaxed text-silver-dark">
+              {feature}
+            </span>
+          </li>
+        ))}
+      </ul>
+
       <a
         href={ctaHref}
         target="_blank"
         rel="noopener noreferrer"
-        className={`inline-flex items-center justify-center rounded-lg px-4 py-2.5 text-xs font-semibold uppercase tracking-wider transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-gold/40 focus:ring-offset-2 ${
-          highlight
-            ? "bg-gold text-white shadow-sm hover:bg-gold-600"
-            : "border-2 border-navy bg-white text-navy hover:bg-navy hover:text-white"
-        }`}
+        className="mt-7 inline-flex items-center justify-center rounded-lg bg-gold px-4 py-3 text-xs font-semibold uppercase tracking-wider text-white shadow-sm transition-all duration-200 hover:bg-gold-600 focus:outline-none focus:ring-2 focus:ring-gold/40 focus:ring-offset-2"
       >
         Subscribe
       </a>

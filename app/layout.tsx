@@ -15,9 +15,9 @@ const playfair = Playfair_Display({
 });
 
 export const metadata: Metadata = {
-  title: "Realtor Toolkit | Compass Line Ventures",
+  title: "Agent Marketing Autopilot | Compass Line Ventures",
   description:
-    "Generate professional cold outreach emails and full listing marketing packages tailored for real estate agents. Built exclusively for real estate professionals.",
+    "Listing descriptions, social posts, follow-up sequences, and just-listed/just-sold content — written for real estate, not generic AI.",
 };
 
 export default function RootLayout({

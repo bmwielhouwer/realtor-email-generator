@@ -4,7 +4,8 @@ import type { Plan } from "./codes";
 const SITE_URL = "https://realtor-email-generator.vercel.app";
 const CUSTOMER_PORTAL_URL =
   "https://billing.stripe.com/p/login/dRm00c7mEbUOg7Ie2U9AA00";
-const FROM_ADDRESS = "Compass Line Ventures <onboarding@resend.dev>";
+// Sent from the verified compasslineventures.com domain (note: no hyphens).
+const FROM_ADDRESS = "Compass Line Ventures <hello@compasslineventures.com>";
 
 let cachedClient: Resend | null = null;
 

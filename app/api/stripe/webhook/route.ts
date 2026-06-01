@@ -4,11 +4,20 @@ import {
   generateAccessCode,
   lookupCodeBySubscription,
   planFromProductName,
-  revokeBySubscription,
   storeCode,
   type Plan,
 } from "../../../lib/codes";
+import {
+  emailForSubscription,
+  storeSubscription,
+  updateSubscriptionStatus,
+} from "../../../lib/subscriptions";
 import { sendWelcomeEmail } from "../../../lib/email";
+
+// Founding Member subscription — for reference. We provision any subscription
+// checkout, since this is the only product on sale.
+//   product: prod_UcbzdnILSBQtDl
+//   price:   price_1TdMl86JkjZ2eY7uYaMLh7Pt
 
 export const runtime = "nodejs";
 // Webhook handlers must always run dynamically (raw body + headers).
@@ -55,6 +64,11 @@ export async function POST(request: Request) {
       case "checkout.session.completed":
         await handleCheckoutCompleted(
           event.data.object as Stripe.Checkout.Session,
+        );
+        break;
+      case "customer.subscription.updated":
+        await handleSubscriptionUpdated(
+          event.data.object as Stripe.Subscription,
         );
         break;
       case "customer.subscription.deleted":
@@ -143,11 +157,78 @@ async function handleCheckoutCompleted(
     createdAt: new Date().toISOString(),
   });
 
+  // Record the active subscription so generation calls can verify access.
+  if (subscriptionId) {
+    await storeSubscription(email, {
+      stripe_customer_id: customerId,
+      subscription_id: subscriptionId,
+      status: "active",
+      created_at: new Date().toISOString(),
+    });
+  }
+
   await sendWelcomeEmail({ to: email, name, code, plan });
+}
+
+async function handleSubscriptionUpdated(
+  subscription: Stripe.Subscription,
+): Promise<void> {
+  // Mirror Stripe's status onto our record. Anything other than "active"
+  // (past_due, unpaid, canceled, paused, …) will gate the customer out.
+  await syncSubscriptionStatus(subscription, subscription.status);
 }
 
 async function handleSubscriptionDeleted(
   subscription: Stripe.Subscription,
 ): Promise<void> {
-  await revokeBySubscription(subscription.id);
+  await syncSubscriptionStatus(subscription, "canceled");
+}
+
+/**
+ * Resolve the customer's email for a subscription event (via the reverse index,
+ * falling back to the Stripe customer record) and persist the new status.
+ */
+async function syncSubscriptionStatus(
+  subscription: Stripe.Subscription,
+  status: string,
+): Promise<void> {
+  const customerId =
+    typeof subscription.customer === "string"
+      ? subscription.customer
+      : subscription.customer?.id ?? null;
+
+  let email = await emailForSubscription(subscription.id);
+
+  if (!email && customerId) {
+    try {
+      const customer = await getStripe().customers.retrieve(customerId);
+      if (!("deleted" in customer && customer.deleted)) {
+        email = (customer as Stripe.Customer).email ?? null;
+      }
+    } catch (err) {
+      console.error(
+        `[stripe-webhook] failed to retrieve customer ${customerId}:`,
+        err,
+      );
+    }
+  }
+
+  if (!email) {
+    console.error(
+      `[stripe-webhook] could not resolve email for subscription ${subscription.id}; status "${status}" not recorded`,
+    );
+    return;
+  }
+
+  const updated = await updateSubscriptionStatus(email, status);
+  if (!updated) {
+    // No prior record (e.g. subscription created outside our checkout) — create
+    // one so the status is tracked going forward.
+    await storeSubscription(email, {
+      stripe_customer_id: customerId,
+      subscription_id: subscription.id,
+      status,
+      created_at: new Date().toISOString(),
+    });
+  }
 }

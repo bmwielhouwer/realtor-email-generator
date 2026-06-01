@@ -5,7 +5,7 @@ const SITE_URL = "https://realtor-email-generator.vercel.app";
 const CUSTOMER_PORTAL_URL =
   "https://billing.stripe.com/p/login/dRm00c7mEbUOg7Ie2U9AA00";
 // Sent from the verified compasslineventures.com domain (note: no hyphens).
-const FROM_ADDRESS = "Compass Line Ventures <hello@compasslineventures.com>";
+const FROM_ADDRESS = "Compass Line Apps <noreply@compasslineventures.com>";
 
 let cachedClient: Resend | null = null;
 
@@ -57,7 +57,7 @@ export function buildWelcomeEmail(args: {
   const greeting = args.name
     ? `Hi ${escapeHtml(args.name.split(" ")[0])},`
     : "Hi there,";
-  const subject = "Welcome to Compass Line Pro";
+  const subject = "Your Compass Line Apps access code";
 
   const html = `<!DOCTYPE html>
 <html>
@@ -69,7 +69,7 @@ export function buildWelcomeEmail(args: {
             <tr>
               <td style="background-color:#1B2447;padding:32px 32px 24px;text-align:center;">
                 <div style="color:#B8952A;font-size:11px;font-weight:600;letter-spacing:3px;text-transform:uppercase;margin-bottom:8px;">Compass Line Ventures</div>
-                <h1 style="margin:0;color:#ffffff;font-size:26px;font-weight:700;font-family:Georgia,serif;">Welcome to Compass Line Pro</h1>
+                <h1 style="margin:0;color:#ffffff;font-size:26px;font-weight:700;font-family:Georgia,serif;">Welcome to Compass Line Apps!</h1>
               </td>
             </tr>
             <tr>

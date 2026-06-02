@@ -58,18 +58,21 @@ function getResend(): Resend {
 // --- Access code generation -------------------------------------------------
 
 // 8 uppercase alphanumeric characters, no prefix and no dashes (e.g.
-// "04E5EPU4"). This matches the format Event Overlay's webhook writes into the
+// "234ABCDE"). This matches the format Event Overlay's webhook writes into the
 // shared Redis instance so provisioned codes are uniform across services.
-const CODE_ALPHABET = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ"; // 36 chars
+//
+// The alphabet omits visually ambiguous characters (0/O, 1/I/L) so customers
+// can transcribe codes from the welcome email without confusion.
+const CODE_ALPHABET = "123456789ABCDEFGHJKLMNPQRSTUVWXYZ"; // 33 chars
 
 function generateAccessCode(): string {
   let result = "";
   while (result.length < 8) {
     // One byte at a time, rejecting values that would bias the modulo (256 is
-    // not divisible by 36; 252 = 36 * 7 is the largest unbiased cutoff).
+    // not divisible by 33; 231 = 33 * 7 is the largest unbiased cutoff).
     const byte = randomBytes(1)[0];
-    if (byte >= 252) continue;
-    result += CODE_ALPHABET[byte % 36];
+    if (byte >= 231) continue;
+    result += CODE_ALPHABET[byte % 33];
   }
   return result;
 }

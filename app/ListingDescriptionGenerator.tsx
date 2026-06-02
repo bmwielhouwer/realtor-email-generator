@@ -124,7 +124,7 @@ export default function ListingDescriptionGenerator() {
             spellCheck={false}
             value={form.accessCode}
             onChange={(e) => updateField("accessCode", e.target.value)}
-            placeholder="CLV-XXXX-XXXX"
+            placeholder="XXXXXXXX"
             className="field-input font-mono tracking-wider"
           />
           <p className="mt-2 text-xs text-silver-dark">

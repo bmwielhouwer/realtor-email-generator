@@ -14,16 +14,33 @@ export type StoredCode = {
   createdAt: string;
 };
 
-// Unambiguous alphabet (no 0/O, 1/I/L) — 32 chars so % 32 is uniform across bytes.
-const CODE_ALPHABET = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
+// Access codes are 8 uppercase alphanumeric characters with no prefix and no
+// dashes (e.g. "04E5EPU4"). This matches the format Event Overlay's webhook
+// writes into the shared Redis instance so codes are uniform regardless of
+// which service provisioned them.
+const CODE_ALPHABET = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ"; // 36 chars
+const CODE_LENGTH = 8;
 
 export function generateAccessCode(): string {
-  const bytes = randomBytes(8);
-  let result = "CLV-";
-  for (let i = 0; i < 4; i++) result += CODE_ALPHABET[bytes[i] % 32];
-  result += "-";
-  for (let i = 4; i < 8; i++) result += CODE_ALPHABET[bytes[i] % 32];
+  let result = "";
+  while (result.length < CODE_LENGTH) {
+    // One byte at a time, rejecting values that would bias the modulo (256 is
+    // not divisible by 36; 252 = 36 * 7 is the largest unbiased cutoff).
+    const byte = randomBytes(1)[0];
+    if (byte >= 252) continue;
+    result += CODE_ALPHABET[byte % 36];
+  }
   return result;
+}
+
+// New codes are 8 alphanumeric chars; legacy codes used a prefix and dashes
+// (CLM-XXXX-XXXX / CLV-XXXX-XXXX, and personal test codes like CLV-BRIAN-TEST).
+// Accept both so codes minted before the format change keep working.
+const NEW_CODE_FORMAT = /^[A-Z0-9]{8}$/i;
+const LEGACY_CODE_FORMAT = /^[A-Z]{2,4}(?:-[A-Z0-9]+)+$/i;
+
+export function isSupportedCodeFormat(code: string): boolean {
+  return NEW_CODE_FORMAT.test(code) || LEGACY_CODE_FORMAT.test(code);
 }
 
 export function planAllowsTool(plan: Plan, tool: Tool): boolean {
@@ -100,8 +117,9 @@ export async function revokeBySubscription(
 
 /**
  * Validate a submitted code against (a) the ACCESS_CODES env var allow-list and
- * (b) auto-provisioned codes in Redis. Env codes are treated as "both" so the
- * personal CLV-BRIAN-TEST style codes keep working for testing.
+ * (b) auto-provisioned codes in Redis. Both the new 8-char format and legacy
+ * prefixed codes (CLM-/CLV-XXXX-XXXX, plus personal CLV-BRIAN-TEST style test
+ * codes) are accepted so nothing minted before the format change breaks.
  */
 export async function validateAccessCode(
   submitted: string | undefined | null,
@@ -115,6 +133,9 @@ export async function validateAccessCode(
     return { ok: false, reason: "missing" };
   }
 
+  // The env allow-list is matched by exact value, so codes in either format are
+  // honored. Checked first so personal/test codes always work even if they
+  // don't fit the strict new/legacy shapes below.
   const envCodes = (process.env.ACCESS_CODES ?? "")
     .split(",")
     .map((c) => c.trim())
@@ -124,6 +145,12 @@ export async function validateAccessCode(
     // Personal/test codes from the env allow-list aren't tied to a customer
     // email, so they bypass the per-customer usage cap.
     return { ok: true, plan: "both", email: null };
+  }
+
+  // Reject anything that is neither a new 8-char code nor a legacy prefixed
+  // code before hitting Redis, but accept both so old codes keep validating.
+  if (!isSupportedCodeFormat(code)) {
+    return { ok: false, reason: "not_found" };
   }
 
   let stored: StoredCode | null = null;

@@ -57,18 +57,21 @@ function getResend(): Resend {
 
 // --- Access code generation -------------------------------------------------
 
-// Unambiguous alphanumeric alphabet (no 0/O, 1/I/L) — 32 chars so % 32 is
-// uniform across bytes.
-const CODE_ALPHABET = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
+// 8 uppercase alphanumeric characters, no prefix and no dashes (e.g.
+// "04E5EPU4"). This matches the format Event Overlay's webhook writes into the
+// shared Redis instance so provisioned codes are uniform across services.
+const CODE_ALPHABET = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ"; // 36 chars
 
-// CLM-XXXX-XXXX — 8 random alphanumeric chars split into two groups of four.
 function generateAccessCode(): string {
-  const bytes = randomBytes(8);
-  let first = "";
-  let second = "";
-  for (let i = 0; i < 4; i++) first += CODE_ALPHABET[bytes[i] % 32];
-  for (let i = 4; i < 8; i++) second += CODE_ALPHABET[bytes[i] % 32];
-  return `CLM-${first}-${second}`;
+  let result = "";
+  while (result.length < 8) {
+    // One byte at a time, rejecting values that would bias the modulo (256 is
+    // not divisible by 36; 252 = 36 * 7 is the largest unbiased cutoff).
+    const byte = randomBytes(1)[0];
+    if (byte >= 252) continue;
+    result += CODE_ALPHABET[byte % 36];
+  }
+  return result;
 }
 
 // --- Webhook entry point ----------------------------------------------------

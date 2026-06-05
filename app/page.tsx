@@ -54,7 +54,7 @@ export default function Home() {
             <div className="aspect-video w-full overflow-hidden rounded-xl shadow-lg">
               <iframe
                 className="h-full w-full"
-                src="https://www.youtube.com/embed/MvtIpUTXMWY?rel=0&modestbranding=1"
+                src="https://www.youtube.com/embed/NruUaSVlT7U?rel=0&modestbranding=1"
                 title="See it in action"
                 allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
                 allowFullScreen

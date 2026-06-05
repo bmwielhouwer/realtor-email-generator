@@ -12,6 +12,18 @@ type CodeEntry = {
   customerId: string | null;
   subscriptionId: string | null;
   createdAt: string;
+  status: string | null;
+  trial_end: string | null;
+  generations_this_month: number;
+  last_active: string | null;
+};
+
+type Summary = {
+  total_signups: number;
+  trialing_count: number;
+  active_count: number;
+  canceled_count: number;
+  mrr_forecast_usd: number;
 };
 
 const planLabel: Record<Plan, string> = {
@@ -20,15 +32,25 @@ const planLabel: Record<Plan, string> = {
   both: "The Suite",
 };
 
+// Table sort order: surface trials first (most time-sensitive), then healthy
+// actives, then at-risk past_due, then churned canceled. Unknown statuses last.
+const STATUS_PRIORITY: Record<string, number> = {
+  trialing: 0,
+  active: 1,
+  past_due: 2,
+  canceled: 3,
+};
+
 export default function AdminPage() {
   const [password, setPassword] = useState("");
   const [authed, setAuthed] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [codes, setCodes] = useState<CodeEntry[]>([]);
+  const [summary, setSummary] = useState<Summary | null>(null);
+  const [lastRefreshed, setLastRefreshed] = useState<Date | null>(null);
 
-  const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
+  const load = async () => {
     setLoading(true);
     setError(null);
     try {
@@ -42,33 +64,21 @@ export default function AdminPage() {
         throw new Error(data?.error ?? "Failed to load codes.");
       }
       setCodes(data.codes ?? []);
-      setAuthed(true);
+      setSummary(data.summary ?? null);
+      setLastRefreshed(new Date());
+      return true;
     } catch (err) {
       setError(err instanceof Error ? err.message : "Something went wrong.");
+      return false;
     } finally {
       setLoading(false);
     }
   };
 
-  const refresh = async () => {
-    setLoading(true);
-    setError(null);
-    try {
-      const response = await fetch("/api/admin/list", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ password }),
-      });
-      const data = await response.json();
-      if (!response.ok) {
-        throw new Error(data?.error ?? "Failed to load codes.");
-      }
-      setCodes(data.codes ?? []);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "Something went wrong.");
-    } finally {
-      setLoading(false);
-    }
+  const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    const ok = await load();
+    if (ok) setAuthed(true);
   };
 
   if (!authed) {
@@ -123,6 +133,13 @@ export default function AdminPage() {
     );
   }
 
+  const sortedCodes = [...codes].sort((a, b) => {
+    const pa = STATUS_PRIORITY[a.status ?? ""] ?? 99;
+    const pb = STATUS_PRIORITY[b.status ?? ""] ?? 99;
+    if (pa !== pb) return pa - pb;
+    return b.createdAt.localeCompare(a.createdAt);
+  });
+
   return (
     <main className="min-h-screen bg-white">
       <header className="bg-navy">
@@ -137,7 +154,7 @@ export default function AdminPage() {
           </div>
           <button
             type="button"
-            onClick={refresh}
+            onClick={load}
             disabled={loading}
             className="btn-primary"
           >
@@ -156,13 +173,46 @@ export default function AdminPage() {
           </div>
         )}
 
+        {summary && (
+          <div className="mb-8 grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-5">
+            <SummaryCard label="Total Signups" value={summary.total_signups} />
+            <SummaryCard
+              label="Trialing"
+              value={summary.trialing_count}
+              accent="yellow"
+            />
+            <SummaryCard
+              label="Active"
+              value={summary.active_count}
+              accent="green"
+            />
+            <SummaryCard
+              label="Canceled"
+              value={summary.canceled_count}
+              accent="red"
+            />
+            <SummaryCard
+              label="MRR Forecast"
+              value={`$${summary.mrr_forecast_usd.toLocaleString()}`}
+              accent="gold"
+            />
+          </div>
+        )}
+
         <div className="mb-6 flex items-baseline justify-between">
           <h2 className="font-serif text-2xl font-bold text-navy">
             Active Subscribers
           </h2>
-          <span className="text-[11px] font-semibold uppercase tracking-[0.2em] text-silver-dark">
-            {codes.length} {codes.length === 1 ? "code" : "codes"}
-          </span>
+          <div className="flex items-baseline gap-4">
+            {lastRefreshed && (
+              <span className="text-[11px] text-silver-dark">
+                Last refreshed {formatDate(lastRefreshed.toISOString())}
+              </span>
+            )}
+            <span className="text-[11px] font-semibold uppercase tracking-[0.2em] text-silver-dark">
+              {codes.length} {codes.length === 1 ? "code" : "codes"}
+            </span>
+          </div>
         </div>
 
         {codes.length === 0 ? (
@@ -173,18 +223,21 @@ export default function AdminPage() {
             </p>
           </div>
         ) : (
-          <div className="overflow-hidden rounded-xl border border-silver/20 bg-white shadow-sm">
+          <div className="overflow-x-auto rounded-xl border border-silver/20 bg-white shadow-sm">
             <table className="w-full text-left text-sm">
               <thead className="bg-navy/[0.03]">
                 <tr className="text-[10px] font-semibold uppercase tracking-[0.15em] text-navy/70">
                   <th className="px-4 py-3">Code</th>
                   <th className="px-4 py-3">Customer</th>
                   <th className="px-4 py-3">Plan</th>
+                  <th className="px-4 py-3">Status</th>
+                  <th className="px-4 py-3">Trial Ends</th>
+                  <th className="px-4 py-3">Gens / Mo</th>
                   <th className="px-4 py-3">Subscribed</th>
                 </tr>
               </thead>
               <tbody>
-                {codes.map((entry) => (
+                {sortedCodes.map((entry) => (
                   <tr
                     key={entry.code}
                     className="border-t border-silver/15 transition-colors hover:bg-gold/5"
@@ -211,6 +264,17 @@ export default function AdminPage() {
                         {planLabel[entry.plan]}
                       </span>
                     </td>
+                    <td className="px-4 py-3">
+                      <StatusPill status={entry.status} />
+                    </td>
+                    <td className="px-4 py-3 text-xs text-silver-dark">
+                      {entry.status === "trialing"
+                        ? formatCountdown(entry.trial_end)
+                        : "—"}
+                    </td>
+                    <td className="px-4 py-3 text-navy">
+                      {entry.generations_this_month}
+                    </td>
                     <td className="px-4 py-3 text-xs text-silver-dark">
                       {formatDate(entry.createdAt)}
                     </td>
@@ -223,6 +287,70 @@ export default function AdminPage() {
       </section>
     </main>
   );
+}
+
+const ACCENT_STYLES: Record<string, string> = {
+  navy: "text-navy",
+  green: "text-green-700",
+  yellow: "text-yellow-700",
+  red: "text-red-700",
+  gold: "text-gold",
+};
+
+function SummaryCard({
+  label,
+  value,
+  accent = "navy",
+}: {
+  label: string;
+  value: string | number;
+  accent?: "navy" | "green" | "yellow" | "red" | "gold";
+}) {
+  return (
+    <div className="rounded-xl border border-silver/20 bg-white p-5 shadow-sm">
+      <div className="text-[10px] font-semibold uppercase tracking-[0.15em] text-silver-dark">
+        {label}
+      </div>
+      <div
+        className={`mt-2 font-serif text-3xl font-bold ${ACCENT_STYLES[accent]}`}
+      >
+        {value}
+      </div>
+    </div>
+  );
+}
+
+function StatusPill({ status }: { status: string | null }) {
+  if (!status) {
+    return <span className="text-xs text-silver-dark">—</span>;
+  }
+  const styles =
+    status === "active"
+      ? "bg-green-100 text-green-800"
+      : status === "trialing"
+        ? "bg-yellow-100 text-yellow-800"
+        : status === "canceled" || status === "past_due"
+          ? "bg-red-100 text-red-800"
+          : "bg-navy/10 text-navy";
+  return (
+    <span
+      className={`inline-flex rounded-full px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.1em] ${styles}`}
+    >
+      {status.replace(/_/g, " ")}
+    </span>
+  );
+}
+
+function formatCountdown(iso: string | null): string {
+  if (!iso) return "—";
+  const end = new Date(iso).getTime();
+  if (Number.isNaN(end)) return "—";
+  const diffMs = end - Date.now();
+  const days = Math.ceil(diffMs / (1000 * 60 * 60 * 24));
+  if (days > 1) return `in ${days} days`;
+  if (days === 1) return "in 1 day";
+  if (days === 0) return "today";
+  return "expired";
 }
 
 function formatDate(iso: string): string {

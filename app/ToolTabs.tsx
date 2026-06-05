@@ -1,10 +1,14 @@
 "use client";
 
-import { useState, type ReactNode } from "react";
+import { useEffect, useState, type ReactNode } from "react";
 import EmailGenerator from "./EmailGenerator";
 import ListingDescriptionGenerator from "./ListingDescriptionGenerator";
 
 type Tool = "cold-email" | "listing";
+
+// Set after a successful generation — its presence means the user has cleared
+// the access-code validation gate at least once.
+const ACCESS_CODE_STORAGE_KEY = "clv_access_code";
 
 export default function ToolTabs() {
   const [tool, setTool] = useState<Tool>("cold-email");
@@ -35,6 +39,60 @@ export default function ToolTabs() {
       ) : (
         <ListingDescriptionGenerator />
       )}
+
+      <ManageSubscriptionLink />
+    </div>
+  );
+}
+
+function ManageSubscriptionLink() {
+  const [accessCode, setAccessCode] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    try {
+      const saved = window.localStorage.getItem(ACCESS_CODE_STORAGE_KEY);
+      if (saved && saved.trim()) setAccessCode(saved.trim());
+    } catch {
+      // localStorage unavailable; ignore.
+    }
+  }, []);
+
+  // Only logged-in users (a validated code persisted to localStorage) see this.
+  if (!accessCode) return null;
+
+  const handleClick = async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      const response = await fetch("/api/billing-portal", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ access_code: accessCode }),
+      });
+      const data = await response.json();
+      if (!response.ok || !data?.url) {
+        throw new Error(data?.error ?? "Could not open the billing portal.");
+      }
+      window.location.href = data.url;
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Something went wrong.");
+      setLoading(false);
+    }
+  };
+
+  return (
+    <div className="flex flex-col items-end gap-1 px-1">
+      <button
+        type="button"
+        onClick={handleClick}
+        disabled={loading}
+        className="text-sm font-semibold text-gold underline-offset-2 hover:underline disabled:opacity-50"
+      >
+        {loading ? "Opening…" : "Manage Subscription"}
+      </button>
+      {error && <p className="text-xs text-red-700">{error}</p>}
     </div>
   );
 }

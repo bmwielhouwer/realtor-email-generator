@@ -1,6 +1,6 @@
 import ToolTabs from "./ToolTabs";
 
-const STRIPE_FOUNDING_URL = "https://buy.stripe.com/7sYeV6dL2bUO9Jkf6Y9AA0c";
+const STRIPE_FOUNDING_URL = "https://buy.stripe.com/00w6oA8qI4smaNo2kc9AA0d";
 
 export default function Home() {
   return (
@@ -24,7 +24,7 @@ export default function Home() {
               rel="noopener noreferrer"
               className="inline-flex items-center justify-center rounded-lg bg-gold px-4 py-2 text-xs font-semibold uppercase tracking-wider text-white shadow-sm transition-all duration-200 hover:bg-gold-600 focus:outline-none focus:ring-2 focus:ring-gold/40 focus:ring-offset-2 focus:ring-offset-navy"
             >
-              Subscribe
+              Start Free Trial
             </a>
           </div>
         </div>
@@ -52,7 +52,7 @@ export default function Home() {
           </div>
 
           <p className="mt-8 text-xs text-silver">
-            Cancel anytime &middot; Access code delivered by email after subscribing.
+            14-day free trial &middot; No charge today &middot; Access code delivered instantly &middot; Cancel anytime.
           </p>
         </div>
       </section>
@@ -106,6 +106,7 @@ function FoundingMemberCard({ ctaHref }: { ctaHref: string }) {
         <p className="mt-3 text-sm font-semibold text-gold">
           For your first 6 months. Then $49/mo.
         </p>
+        <p className="mt-2 text-xs font-medium text-navy">Free for 14 days &middot; $0 today</p>
         <p className="mt-1 text-xs text-silver-dark">
           Limited to the first 25 agents.
         </p>
@@ -139,7 +140,7 @@ function FoundingMemberCard({ ctaHref }: { ctaHref: string }) {
         rel="noopener noreferrer"
         className="mt-7 inline-flex items-center justify-center rounded-lg bg-gold px-4 py-3 text-xs font-semibold uppercase tracking-wider text-white shadow-sm transition-all duration-200 hover:bg-gold-600 focus:outline-none focus:ring-2 focus:ring-gold/40 focus:ring-offset-2"
       >
-        Subscribe
+        Start Free Trial
       </a>
     </div>
   );

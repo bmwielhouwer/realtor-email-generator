@@ -142,6 +142,14 @@ export default function Home() {
             <div className="mt-1">
               &copy; {new Date().getFullYear()} All rights reserved.
             </div>
+            <div className="mt-2 flex justify-center gap-4 sm:justify-end">
+              <a href="/privacy" className="hover:text-white">
+                Privacy
+              </a>
+              <a href="/terms" className="hover:text-white">
+                Terms
+              </a>
+            </div>
           </div>
         </div>
       </footer>

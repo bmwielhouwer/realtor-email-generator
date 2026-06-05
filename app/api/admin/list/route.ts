@@ -4,6 +4,38 @@ import { timingSafeEqual } from "crypto";
 import { listActiveCodes } from "../../../lib/codes";
 import { getSubscription } from "../../../lib/subscriptions";
 import { getUsageDetail } from "../../../lib/usage";
+import { getRedis } from "../../../lib/redis";
+
+const SPHERE_FEATURE_ID = "sphere-nurture";
+
+type WaitlistRecord = {
+  email: string;
+  name?: string;
+  problem?: string;
+  created_at: string;
+};
+
+async function getSphereWaitlist(): Promise<
+  Array<{ email: string; name: string; problem: string; created_at: string }>
+> {
+  const redis = getRedis();
+  const emails = await redis.smembers(`waitlist_emails:${SPHERE_FEATURE_ID}`);
+  if (!emails.length) return [];
+  const records = await Promise.all(
+    emails.map((e) =>
+      redis.get<WaitlistRecord>(`waitlist:${SPHERE_FEATURE_ID}:${e}`),
+    ),
+  );
+  return records
+    .filter((r): r is WaitlistRecord => Boolean(r))
+    .map((r) => ({
+      email: r.email,
+      name: r.name ?? "",
+      problem: r.problem ?? "",
+      created_at: r.created_at,
+    }))
+    .sort((a, b) => b.created_at.localeCompare(a.created_at));
+}
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -118,7 +150,12 @@ export async function POST(request: Request) {
       mrr_forecast_usd: activeCount * FOUNDING_PRICE_USD,
     };
 
-    return NextResponse.json({ codes: enriched, summary });
+    const sphere_waitlist = await getSphereWaitlist().catch((err) => {
+      console.error("[admin/list] failed to read sphere waitlist:", err);
+      return [];
+    });
+
+    return NextResponse.json({ codes: enriched, summary, sphere_waitlist });
   } catch (err) {
     const message =
       err instanceof Error ? err.message : "Failed to read access codes.";

@@ -1,4 +1,5 @@
 import ToolTabs from "./ToolTabs";
+import SphereWaitlistForm from "./SphereWaitlist";
 
 const STRIPE_FOUNDING_URL = "https://buy.stripe.com/00w6oA8qI4smaNo2kc9AA0d";
 
@@ -123,6 +124,27 @@ export default function Home() {
       <section className="bg-white">
         <div className="mx-auto max-w-4xl px-6 pb-24">
           <ToolTabs />
+        </div>
+      </section>
+
+      <section className="bg-gray-50">
+        <div className="mx-auto max-w-3xl px-6 py-20 text-center sm:py-24">
+          <p className="text-[11px] font-semibold uppercase tracking-[0.25em] text-gold">
+            Coming Soon
+          </p>
+          <h2 className="mt-3 font-serif text-3xl font-bold tracking-tight text-navy sm:text-4xl">
+            Sphere Nurture Engine &mdash; keep your past clients warm on
+            autopilot
+          </h2>
+          <p className="mx-auto mt-5 max-w-2xl text-base leading-relaxed text-silver-dark sm:text-lg">
+            66% of sellers hire an agent they already know. The follow-up that
+            actually converts sphere contacts into closings is brutal to do
+            manually &mdash; quarterly check-ins, home anniversary touches,
+            market updates for their neighborhood. We&apos;re building an AI
+            engine that handles all of it. Drop your email to be notified at
+            launch, plus get founding-member pricing.
+          </p>
+          <SphereWaitlistForm />
         </div>
       </section>
 

@@ -26,6 +26,13 @@ type Summary = {
   mrr_forecast_usd: number;
 };
 
+type WaitlistEntry = {
+  email: string;
+  name: string;
+  problem: string;
+  created_at: string;
+};
+
 const planLabel: Record<Plan, string> = {
   cold_email: "Cold Email Pro",
   listing: "Listing Pro",
@@ -48,6 +55,7 @@ export default function AdminPage() {
   const [error, setError] = useState<string | null>(null);
   const [codes, setCodes] = useState<CodeEntry[]>([]);
   const [summary, setSummary] = useState<Summary | null>(null);
+  const [waitlist, setWaitlist] = useState<WaitlistEntry[]>([]);
   const [lastRefreshed, setLastRefreshed] = useState<Date | null>(null);
 
   const load = async () => {
@@ -65,6 +73,7 @@ export default function AdminPage() {
       }
       setCodes(data.codes ?? []);
       setSummary(data.summary ?? null);
+      setWaitlist(data.sphere_waitlist ?? []);
       setLastRefreshed(new Date());
       return true;
     } catch (err) {
@@ -287,6 +296,52 @@ export default function AdminPage() {
                         password={password}
                         onCanceled={load}
                       />
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
+
+        <div className="mb-6 mt-12 flex items-baseline justify-between">
+          <h2 className="font-serif text-2xl font-bold text-navy">
+            Sphere Nurture Waitlist ({waitlist.length})
+          </h2>
+        </div>
+
+        {waitlist.length === 0 ? (
+          <div className="rounded-xl border border-silver/20 bg-white p-10 text-center shadow-sm">
+            <p className="text-sm text-silver-dark">
+              No waitlist signups yet.
+            </p>
+          </div>
+        ) : (
+          <div className="overflow-x-auto rounded-xl border border-silver/20 bg-white shadow-sm">
+            <table className="w-full text-left text-sm">
+              <thead className="bg-navy/[0.03]">
+                <tr className="text-[10px] font-semibold uppercase tracking-[0.15em] text-navy/70">
+                  <th className="px-4 py-3">Email</th>
+                  <th className="px-4 py-3">Date Joined</th>
+                  <th className="px-4 py-3">Problem Mentioned</th>
+                </tr>
+              </thead>
+              <tbody>
+                {waitlist.map((entry) => (
+                  <tr
+                    key={entry.email}
+                    className="border-t border-silver/15 transition-colors hover:bg-gold/5"
+                  >
+                    <td className="px-4 py-3 text-navy">{entry.email}</td>
+                    <td className="px-4 py-3 text-xs text-silver-dark">
+                      {formatDate(entry.created_at)}
+                    </td>
+                    <td className="px-4 py-3 text-silver-dark">
+                      {entry.problem ? (
+                        entry.problem
+                      ) : (
+                        <span className="text-silver-dark">—</span>
+                      )}
                     </td>
                   </tr>
                 ))}

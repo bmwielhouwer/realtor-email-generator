@@ -106,12 +106,15 @@ export default function Home() {
               Why not just use ChatGPT?
             </h2>
             <p className="mt-5 text-base leading-relaxed text-silver-dark sm:text-lg">
-              You absolutely can. But ChatGPT doesn&apos;t know how listings get
-              marketed, doesn&apos;t remember your tone, doesn&apos;t auto-format
-              for YachtWorld/MLS/social, and won&apos;t draft a follow-up
-              sequence calibrated to a buyer&apos;s timeline. Agent Marketing
-              Autopilot is the workflow ChatGPT can&apos;t be. Try it free for 14
-              days &mdash; if it doesn&apos;t save you serious time, cancel.
+              You absolutely can. But ChatGPT requires you to write a fresh
+              prompt every time &mdash; and writing a good real estate prompt
+              takes its own learning curve. Agent Marketing Autopilot is
+              pre-built for residential workflows: paste basic listing details
+              once, get an MLS-ready description, three social posts formatted
+              for the platforms they&apos;re going to, and a follow-up email
+              sequence calibrated to a buyer&apos;s timeline &mdash; all in the
+              time it takes you to write a single ChatGPT prompt. Try it free for
+              14 days. If it doesn&apos;t save you serious time, cancel.
             </p>
           </div>
         </div>

@@ -31,11 +31,11 @@ export default function Home() {
       </header>
 
       <section className="bg-navy">
-        <div className="mx-auto max-w-5xl px-6 pb-24 pt-16 text-center sm:pb-28 sm:pt-20">
+        <div className="mx-auto max-w-5xl px-6 pb-24 pt-8 text-center sm:pb-28 sm:pt-10">
           <img
             src="/logo.png"
             alt="Compass Line Ventures"
-            className="mx-auto mb-10 h-24 w-auto sm:h-32"
+            className="mx-auto mb-6 h-20 w-auto sm:h-24"
           />
           <h1 className="font-serif text-4xl font-bold leading-[1.1] tracking-tight text-white sm:text-5xl md:text-6xl">
             Agent Marketing Autopilot

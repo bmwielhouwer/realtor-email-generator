@@ -38,12 +38,13 @@ export default function Home() {
             className="mx-auto mb-6 h-20 w-auto sm:h-24"
           />
           <h1 className="font-serif text-4xl font-bold leading-[1.1] tracking-tight text-white sm:text-5xl md:text-6xl">
-            Agent Marketing Autopilot
+            Done-for-you marketing for residential agents. In 60 seconds, not
+            60 minutes.
           </h1>
           <p className="mx-auto mt-6 max-w-2xl text-base text-silver sm:text-lg">
-            Listing descriptions, social posts, follow-up sequences, and
-            just-listed/just-sold content &mdash; written for real estate, not
-            generic AI.
+            Listings, social posts, and follow-up sequences &mdash; written for
+            real estate, not generic AI. Try it free for 14 days, no charge
+            today.
           </p>
           <div className="mx-auto mt-10 h-px w-20 bg-gold" />
 
@@ -73,7 +74,51 @@ export default function Home() {
       </section>
 
       <section className="bg-white">
-        <div className="mx-auto -mt-16 max-w-4xl px-6 pb-24 sm:-mt-20">
+        <div className="mx-auto max-w-3xl px-6 py-20 sm:py-24">
+          <div>
+            <p className="text-[11px] font-semibold uppercase tracking-[0.25em] text-gold">
+              The Story
+            </p>
+            <h2 className="mt-3 font-serif text-3xl font-bold tracking-tight text-navy sm:text-4xl">
+              Why I built this
+            </h2>
+            <p className="mt-5 text-base leading-relaxed text-silver-dark sm:text-lg">
+              I&apos;m Brian &mdash; a software engineer building tools for
+              industries my family has worked in for decades. My dad&apos;s been
+              a yacht broker for 25 years and his biggest complaint has always
+              been the same: marketing copy takes forever, and the generic AI
+              tools sound like every other listing on the market. So I built him
+              a tool that turns broker notes into the full marketing package in
+              under a minute. The realtor version is the same idea &mdash;
+              purpose-built for residential agents, no prompt engineering
+              required. If it saves you an hour a listing, that&apos;s the whole
+              point.
+            </p>
+          </div>
+
+          <div className="my-12 h-px w-full bg-silver/40" />
+
+          <div>
+            <p className="text-[11px] font-semibold uppercase tracking-[0.25em] text-gold">
+              FAQ
+            </p>
+            <h2 className="mt-3 font-serif text-3xl font-bold tracking-tight text-navy sm:text-4xl">
+              Why not just use ChatGPT?
+            </h2>
+            <p className="mt-5 text-base leading-relaxed text-silver-dark sm:text-lg">
+              You absolutely can. But ChatGPT doesn&apos;t know how listings get
+              marketed, doesn&apos;t remember your tone, doesn&apos;t auto-format
+              for YachtWorld/MLS/social, and won&apos;t draft a follow-up
+              sequence calibrated to a buyer&apos;s timeline. Agent Marketing
+              Autopilot is the workflow ChatGPT can&apos;t be. Try it free for 14
+              days &mdash; if it doesn&apos;t save you serious time, cancel.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <section className="bg-white">
+        <div className="mx-auto max-w-4xl px-6 pb-24">
           <ToolTabs />
         </div>
       </section>

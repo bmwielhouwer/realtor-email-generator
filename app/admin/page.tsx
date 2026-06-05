@@ -234,6 +234,7 @@ export default function AdminPage() {
                   <th className="px-4 py-3">Trial Ends</th>
                   <th className="px-4 py-3">Gens / Mo</th>
                   <th className="px-4 py-3">Subscribed</th>
+                  <th className="px-4 py-3 text-right">Actions</th>
                 </tr>
               </thead>
               <tbody>
@@ -278,6 +279,15 @@ export default function AdminPage() {
                     <td className="px-4 py-3 text-xs text-silver-dark">
                       {formatDate(entry.createdAt)}
                     </td>
+                    <td className="px-4 py-3 text-right">
+                      <CancelAction
+                        subscriptionId={entry.subscriptionId}
+                        email={entry.email}
+                        status={entry.status}
+                        password={password}
+                        onCanceled={load}
+                      />
+                    </td>
                   </tr>
                 ))}
               </tbody>
@@ -316,6 +326,90 @@ function SummaryCard({
       >
         {value}
       </div>
+    </div>
+  );
+}
+
+function CancelAction({
+  subscriptionId,
+  email,
+  status,
+  password,
+  onCanceled,
+}: {
+  subscriptionId: string | null;
+  email: string;
+  status: string | null;
+  password: string;
+  onCanceled: () => void;
+}) {
+  const [busy, setBusy] = useState(false);
+  const [done, setDone] = useState(false);
+  const [err, setErr] = useState<string | null>(null);
+
+  if (done) {
+    return (
+      <span className="text-xs font-semibold text-green-700">Canceled ✓</span>
+    );
+  }
+
+  // Already churned — nothing to cancel.
+  if (status === "canceled" || status === "past_due") {
+    return <span className="text-xs font-medium text-silver-dark">Canceled</span>;
+  }
+
+  // Only live subscriptions can be canceled.
+  if (status !== "trialing" && status !== "active") {
+    return <span className="text-xs text-silver-dark">—</span>;
+  }
+
+  const handleCancel = async () => {
+    if (!subscriptionId) {
+      setErr("No subscription id on record.");
+      return;
+    }
+    const confirmed = window.confirm(
+      `Cancel subscription for ${email}? This is immediate and cannot be undone.`,
+    );
+    if (!confirmed) return;
+
+    setBusy(true);
+    setErr(null);
+    try {
+      const response = await fetch("/api/admin/cancel-subscription", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          password,
+          subscription_id: subscriptionId,
+          email,
+        }),
+      });
+      const data = await response.json();
+      if (!response.ok || !data?.ok) {
+        throw new Error(data?.error ?? "Failed to cancel subscription.");
+      }
+      // Briefly confirm, then refresh the table so the row reflects Stripe's
+      // canceled status (synced into Redis by the webhook).
+      setDone(true);
+      setTimeout(() => onCanceled(), 2000);
+    } catch (e) {
+      setErr(e instanceof Error ? e.message : "Something went wrong.");
+      setBusy(false);
+    }
+  };
+
+  return (
+    <div className="flex flex-col items-end gap-1">
+      <button
+        type="button"
+        onClick={handleCancel}
+        disabled={busy}
+        className="inline-flex items-center justify-center rounded-lg bg-red-600 px-3 py-1.5 text-xs font-semibold text-white shadow-sm transition-colors duration-200 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-400/40 disabled:opacity-50"
+      >
+        {busy ? "Canceling…" : "Cancel"}
+      </button>
+      {err && <div className="text-[11px] text-red-700">{err}</div>}
     </div>
   );
 }

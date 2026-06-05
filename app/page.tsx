@@ -47,6 +47,21 @@ export default function Home() {
           </p>
           <div className="mx-auto mt-10 h-px w-20 bg-gold" />
 
+          <div className="mx-auto mt-12 w-full max-w-[640px]">
+            <p className="mb-3 text-xs text-silver">
+              See it in action &mdash; 60 seconds
+            </p>
+            <div className="aspect-video w-full overflow-hidden rounded-xl shadow-lg">
+              <iframe
+                className="h-full w-full"
+                src="https://www.youtube.com/embed/MvtIpUTXMWY?rel=0&modestbranding=1"
+                title="See it in action"
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                allowFullScreen
+              />
+            </div>
+          </div>
+
           <div className="mx-auto mt-12 max-w-md">
             <FoundingMemberCard ctaHref={STRIPE_FOUNDING_URL} />
           </div>
